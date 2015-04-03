@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="i18n.js"></script>
+</head>
+<body>
+    <select name="language" id="language" onchange="toggle()">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="jp">日本語</option>
+    </select>
+    <h1 data-i18n="TITLE">Test title</h1>
+    <p data-i18n="p.text">This is test text.</p>
+    <button data-i18n="BUTTON_TEXT">change</button>
+    <button data-i18n="BUTTON_ADD" onclick="add()">add</button>
+<script>
+i18n.load({
+    'en': {
+        'TITLE': 'Test title',
+        'BUTTON_TEXT': 'change',
+        'BUTTON_ADD': 'add',
+        'p': {
+            'text': 'This is test text.'
+        }
+    },
+    'zh': {
+        'TITLE': '标题',
+        'BUTTON_TEXT': '变',
+        'BUTTON_ADD': '添加',
+        'p': {
+            'text': '这是测试文本。'
+        }
+    },
+    'jp': {
+        'TITLE': 'タイトル',
+        'BUTTON_TEXT': '変更',
+        'BUTTON_ADD': '追加する',
+        'p': {
+            'text': 'これはテストです'
+        }
+    }
+});
+
+function toggle() {
+    var ele = document.getElementById( 'language' ),
+        value = ele.value;
+
+    i18n.use(value);
+}
+
+function add() {
+    var p = document.getElementsByTagName( 'p' ),
+        newP = document.createElement( 'div' ),
+        node;
+
+    newP.innerHTML = '<p data-i18n="p.text">This is test text.</p>';
+    node = newP.firstChild.cloneNode( true );
+
+    p = p[p.length-1];
+    p.parentNode.insertBefore( node, p.nextSibling );
+
+    i18n.cache( node );
+}
+
+i18n.cache();
+</script>
+</body>
+</html>

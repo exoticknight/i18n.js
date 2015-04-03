@@ -1,0 +1,31 @@
+{
+  "name": "i18n.js",
+  "devDependencies": {
+    "rimraf": "latest",
+    "concat-cli": "latest",
+    "copyfiles": "latest",
+    "jshint": "latest",
+    "stylus": "latest",
+    "uglify-js": "latest",
+    "cssmin": "latest",
+    "onchange": "latest"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+
+    "lint": "jshint src/js/main.js",
+
+    "build:html": "copyfiles -f src/js/test.html dist",
+
+    "prebuild:js": "npm run lint",
+    "build:js": "concat-cli -f src/js/prefix.js src/js/main.js src/js/suffix.js -o dist/i18n.js",
+    "postbuild:js": "uglifyjs dist/i18n.js -o dist/i18n.min.js -m -c",
+    "watch:js": "onchange 'src/js/*.js' -- npm run build:js",
+
+    "build:css": "stylus src/css/main.styl | cssmin > dist/i18n.css",
+
+    "prebuild": "npm run clean",
+    "build": "npm run build:js && npm run build:css && build:html"
+
+  }
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="i18n.js"></script>
+</head>
+<body>
+    <h1 data-i18n="TITLE"></h1>
+    <p data-i18n="p.text"></p>
+    <input type="button" value="change" onclick="javascript:translate();return false;">
+<script>
+i18n.load({
+    'en': {
+        'TITLE': 'Test title',
+        'BUTTON_TEXT': 'change',
+        'p': {
+            'text': 'This is test text.'
+        }
+    },
+    'zh': {
+        'TITLE': '标题',
+        'BUTTON_TEXT': '变',
+        'p': {
+            'text': '这是测试文本。'
+        }
+    }
+});
+function translate() {
+    console.log('use zh');
+    i18n.use('zh');
+}
+</script>
+</body>
+</html>
