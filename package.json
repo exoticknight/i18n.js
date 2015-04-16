@@ -1,31 +1,37 @@
 {
   "name": "i18n.js",
   "devDependencies": {
-    "rimraf": "latest",
     "concat-cli": "latest",
-    "copyfiles": "latest",
+    "jade": "latest",
     "jshint": "latest",
-    "stylus": "latest",
+    "rimraf": "latest",
     "uglify-js": "latest",
-    "cssmin": "latest",
-    "onchange": "latest"
+    "nodemon": "latest",
+    "parallelshell": "latest"
   },
   "scripts": {
-    "clean": "rimraf dist",
+    "clean:test": "rimraf test",
+    "clean:dist": "rimraf dist",
 
-    "lint": "jshint src/js/main.js",
+    "lint": "jshint src/js/var.js && jshint src/js/util.js && jshint src/js/api.js",
 
-    "build:html": "copyfiles -f src/js/test.html dist",
+    "test:html": "jade -P src/test.jade --out test",
+    "watch:html": "jade -w -P src/test.jade --out test",
 
     "prebuild:js": "npm run lint",
-    "build:js": "concat-cli -f src/js/prefix.js src/js/main.js src/js/suffix.js -o dist/i18n.js",
+    "build:js": "concat-cli -f src/js/wrap/prefix.js src/js/var.js src/js/util.js src/js/api.js src/js/wrap/suffix.js -o dist/i18n.js",
     "postbuild:js": "uglifyjs dist/i18n.js -o dist/i18n.min.js -m -c",
-    "watch:js": "onchange 'src/js/*.js' -- npm run build:js",
 
-    "build:css": "stylus src/css/main.styl | cssmin > dist/i18n.css",
+    "pretest:js": "npm run lint",
+    "test:js": "concat-cli -f src/js/wrap/prefix.js src/js/var.js src/js/util.js src/js/api.js src/js/wrap/suffix.js -o test/i18n.js",
+    "watch:js": "nodemon --watch src/js --exec 'npm run test:js'",
 
-    "prebuild": "npm run clean",
-    "build": "npm run build:js && npm run build:css && build:html"
+    "pretest": "npm run clean:test",
+    "test": "npm run test:js && test:html",
+    "test:watch": "parallelshell 'npm run watch:js' 'npm run watch:html'",
+
+    "prebuild": "npm run clean:dist",
+    "build": "npm run build:js"
 
   }
 }

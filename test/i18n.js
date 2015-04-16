@@ -1,3 +1,19 @@
+/*
+ * i18n.js
+ * author: exotcknight
+ * email: draco.knight0@gmail.com
+ * license: MIT
+ * version: 0.0.1
+*/
+;(function( root, name, definition ) {
+    if ( typeof define === 'function' && define.amd ) {
+      define( [], definition );
+    } else if ( typeof module === 'object' && module.exports ) {
+      module.exports = definition();
+    } else {
+      root[name] = definition();
+    }
+})( this, 'i18n', function() {
 // Save the global object, which is window in browser / global in Node.js.
 var root = this;
 
@@ -25,19 +41,18 @@ var array = [],
     push = array.push,
     slice = array.slice,
     splice = array.splice;
-
 // Some utils, registered under internal object _
 // ----------
 
 // figure out array
-var _.isArray = Array.isArray || function( obj ) {
+_.isArray = Array.isArray || function( obj ) {
     return Object.prototype.toString.call( obj ) === '[object Array]';
-},
+};
 
 // figure out object
 _.isObject = function( obj ) {
     return Object.prototype.toString.call( obj ) === '[object Object]';
-},
+};
 
 
 // deep copy object, modified from jQuery
@@ -72,7 +87,7 @@ _.deepCopy = function ( des, src ) {
     }
 
     return target;
-},
+};
 
 // get data via path, support dot
 _.getData = function ( path, json ) {
@@ -89,12 +104,12 @@ _.getData = function ( path, json ) {
     }
 
     return data;
-},
+};
 
 // Return true if ele has attribute otherwise false
 _.hasAttr = function ( ele, attr ) {
     return ele.hasAttribute ? ele.hasAttribute( attr ) : ele[attr] !== undefined;
-},
+};
 
 // Return required attribute of element or null
 _.getAttr = function ( ele, attr ) {
@@ -110,7 +125,7 @@ _.getAttr = function ( ele, attr ) {
     }
 
     return result;
-},
+};
 
 // cross-browser set text
 _.setText = function ( ele, text ) {
@@ -121,7 +136,7 @@ _.setText = function ( ele, text ) {
         textAttr = ( 'innerText' in ele ) ? 'innerText' : 'textContent';
         ele[textAttr] = text;
     }
-},
+};
 
 // walk the DOM, call the func when finds filtered element
 // having 'data-i18n'
@@ -142,7 +157,7 @@ _.walkDOM = function ( dom, func, filter ) {
             node = node.nextSibling;
         }
     }
-},
+};
 
 // Returns array of elements that have attribute 'data-i18n'
 _.filterNodes = function ( root ) {
@@ -156,8 +171,9 @@ _.filterNodes = function ( root ) {
     });
 
     return nodes;
-},
+};
 
+// Translate each node in array with given language table
 _.translate = function ( nodes, table ) {
     var key, text, i, length;
 
@@ -166,19 +182,19 @@ _.translate = function ( nodes, table ) {
         text = _.getData( key, table );
 
         if ( typeof text === 'string' ) {
-            _.setText( nodes[i].ele, text );
+            _.setText( nodes[i], text );
         }
     }
 };
+// API
+// ---
+
 
 // Restore the previous value of 'i18n' and return our own i18n object.
 i18n.noConflict = function () {
     root.i18n = previousi18n;
     return i18n;
 };
-
-// API
-// ---
 
 // Load the translation table
 // translation table should be in following form:
@@ -192,26 +208,50 @@ i18n.noConflict = function () {
 // }
 i18n.load = function ( table ) {
     TRANSLATION_TABLE = _.deepCopy( TRANSLATION_TABLE, table );
+
+    return i18n;
 };
 
-// Return the current language
+// Return the current set language
 i18n.current = function () {
     return CURRENT_LANGUAGE;
 };
 
-// Change the language, apply to all cached nodes or
-// specific elements
-i18n.use = function ( language, elements ) {
-    var langTable = TRANSLATION_TABLE[language];
+// Translate nodes, but won't cache them
+i18n.translate = function ( eles ) {
+    var langTable, nodeList, i, index, nodes;
 
-    var nodes = CACHE_ENABLED ?
-        CACHE_ELEMENTS :
-        _.filterNodes( root.document.body );
+    langTable = TRANSLATION_TABLE[CURRENT_LANGUAGE];
 
     if ( langTable ) {
+        nodeList = Object.prototype.toString.call( eles ) === '[object NodeList]' ?
+            eles :
+            [eles];
+
+        for ( i = 0, index = nodeList.length; i < index; i++ ) {
+            nodes = _.filterNodes( nodeList[i] );
+            _.translate( nodes, langTable );
+        }
+    }
+
+    return i18n;
+};
+
+// Change the language, apply to all cached nodes or document.body
+i18n.use = function ( language ) {
+    var langTable = TRANSLATION_TABLE[language],
+        nodes;
+
+    if ( langTable ) {
+        nodes = CACHE_ENABLED ?
+            CACHE_ELEMENTS :
+            _.filterNodes( root.document.body );
+
         _.translate( nodes, langTable );
         CURRENT_LANGUAGE = language;
     }
+
+    return i18n;
 };
 
 // walk the DOM and keep the references to each 'i18n' element.
@@ -227,14 +267,20 @@ i18n.cache = function ( element ) {
 
     push.apply( CACHE_ELEMENTS, nodes );
     CACHE_ENABLED = true;
+
+    return i18n;
 };
 
 // Clean the cache
 i18n.cleanCache = function () {
     CACHE_ELEMENTS.length = 0;
     CACHE_ENABLED = false;
+
+    return i18n;
 };
 
 
 // Return this library
 return i18n;
+
+});
