@@ -30,13 +30,15 @@ i18n.current = function () {
 };
 
 // Translate nodes, but won't cache them
+// Return translated nodes
 i18n.translate = function ( eles ) {
     var langTable, nodeList, i, index, nodes;
 
     langTable = TRANSLATION_TABLE[CURRENT_LANGUAGE];
 
     if ( langTable ) {
-        nodeList = Object.prototype.toString.call( eles ) === '[object NodeList]' ?
+        nodeList = Object.prototype.toString.call( eles ) === '[object NodeList]' ||
+            'length' in eles ?
             eles :
             [eles];
 
@@ -46,7 +48,7 @@ i18n.translate = function ( eles ) {
         }
     }
 
-    return i18n;
+    return nodes;
 };
 
 // Change the language, apply to all cached nodes or document.body

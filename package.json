@@ -10,8 +10,8 @@
     "parallelshell": "latest"
   },
   "scripts": {
-    "clean:test": "rimraf test",
-    "clean:dist": "rimraf dist",
+    "clean:test": "rimraf test/*",
+    "clean:dist": "rimraf dist/*",
 
     "lint": "jshint src/js/var.js && jshint src/js/util.js && jshint src/js/api.js",
 
@@ -24,11 +24,11 @@
 
     "pretest:js": "npm run lint",
     "test:js": "concat-cli -f src/js/wrap/prefix.js src/js/var.js src/js/util.js src/js/api.js src/js/wrap/suffix.js -o test/i18n.js",
-    "watch:js": "nodemon --watch src/js --exec 'npm run test:js'",
+    "watch:js": "nodemon --watch src/js --exec \"npm run test:js\"",
 
     "pretest": "npm run clean:test",
-    "test": "npm run test:js && test:html",
-    "test:watch": "parallelshell 'npm run watch:js' 'npm run watch:html'",
+    "test": "npm run test:js && npm run test:html",
+    "test:watch": "parallelshell \"npm run watch:js\" \"npm run watch:html\"",
 
     "prebuild": "npm run clean:dist",
     "build": "npm run build:js"

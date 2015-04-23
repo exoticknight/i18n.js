@@ -38,9 +38,7 @@ var previousi18n = root.i18n;
 
 // Local references to array methods.
 var array = [],
-    push = array.push,
-    slice = array.slice,
-    splice = array.splice;
+    push = array.push;
 // Some utils, registered under internal object _
 // ----------
 
@@ -69,6 +67,10 @@ _.deepCopy = function ( des, src ) {
     for ( name in src ) {
         beCopied = src[name];
 
+        if ( beCopied === src ) {
+            continue;
+        }
+
         if ( _.isObject( beCopied ) || ( beCopiedIsArray = _.isArray( beCopied ) ) ) {
 
             if ( beCopiedIsArray ) {
@@ -89,8 +91,8 @@ _.deepCopy = function ( des, src ) {
     return target;
 };
 
-// get data via path, support dot
-_.getData = function ( path, json ) {
+// get translation via path, support dot
+_.getTranslatedText = function ( path, json ) {
     var fieldPath = path.split( '.' ),
         data = json,
         index,
@@ -111,20 +113,9 @@ _.hasAttr = function ( ele, attr ) {
     return ele.hasAttribute ? ele.hasAttribute( attr ) : ele[attr] !== undefined;
 };
 
-// Return required attribute of element or null
+// Return value of required attribute of element or '' if attribute does not exist
 _.getAttr = function ( ele, attr ) {
-    var result = ( ele.getAttribute && ele.getAttribute( attr ) ) || null;
-
-    if( !result ) {
-        var attrs = ele.attributes,
-            length = attrs.length;
-        for( var i = 0; i < length; i++ )
-            if( attrs[i].nodeName === attr ) {
-                result = attrs[i].nodeValue;
-            }
-    }
-
-    return result;
+    return ( ele.getAttribute && ele.getAttribute( attr ) ) || '';
 };
 
 // cross-browser set text
@@ -138,22 +129,17 @@ _.setText = function ( ele, text ) {
     }
 };
 
-// walk the DOM, call the func when finds filtered element
-// having 'data-i18n'
-_.walkDOM = function ( dom, func, filter ) {
+// Walk the DOM, call the visit
+_.walkDOM = function ( dom, visit ) {
     var node,
         passed;
 
-    if ( dom && 1 === dom.nodeType ) {
-        passed = filter ? filter( dom ) : true;
-
-        if ( passed ) {
-            func( dom );
-        }
+    if ( dom && ( 1 === dom.nodeType || 11 === dom.nodeType ) ) {
+        visit( dom );
 
         node = dom.firstChild;
         while ( node ) {
-            _.walkDOM( node, func, filter );
+            _.walkDOM( node, visit );
             node = node.nextSibling;
         }
     }
@@ -165,9 +151,9 @@ _.filterNodes = function ( root ) {
 
     // traverse DOM tree and collect elements with 'data-i18n' attribute
     _.walkDOM( root, function ( ele ) {
-        nodes.push( ele );
-    }, function ( ele ) {
-        return _.hasAttr( ele, 'data-i18n' );
+        if ( _.hasAttr( ele, 'data-i18n' ) ) {
+            nodes.push( ele );
+        }
     });
 
     return nodes;
@@ -178,11 +164,14 @@ _.translate = function ( nodes, table ) {
     var key, text, i, length;
 
     for ( i = 0, length = nodes.length; i < length; i++ ) {
-        key = _.getAttr( nodes[i], 'data-i18n' );
-        text = _.getData( key, table );
+        key = nodes[i].getAttribute( 'data-i18n' );
 
-        if ( typeof text === 'string' ) {
-            _.setText( nodes[i], text );
+        if ( key ) {
+            text = _.getTranslatedText( key, table );
+
+            if ( typeof text === 'string' ) {
+                _.setText( nodes[i], text );
+            }
         }
     }
 };
@@ -218,13 +207,15 @@ i18n.current = function () {
 };
 
 // Translate nodes, but won't cache them
+// Return translated nodes
 i18n.translate = function ( eles ) {
     var langTable, nodeList, i, index, nodes;
 
     langTable = TRANSLATION_TABLE[CURRENT_LANGUAGE];
 
     if ( langTable ) {
-        nodeList = Object.prototype.toString.call( eles ) === '[object NodeList]' ?
+        nodeList = Object.prototype.toString.call( eles ) === '[object NodeList]' ||
+            'length' in eles ?
             eles :
             [eles];
 
@@ -234,7 +225,7 @@ i18n.translate = function ( eles ) {
         }
     }
 
-    return i18n;
+    return nodes;
 };
 
 // Change the language, apply to all cached nodes or document.body

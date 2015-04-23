@@ -14,14 +14,16 @@
     <h1 data-i18n="TITLE">Title</h1>
     <p data-i18n="p.text">This is test text.</p>
     <button data-i18n="BUTTON_TEXT">change</button>
-    <button data-i18n="BUTTON_ADD" onclick="add()">add</button>
+    <button data-i18n="BUTTON_ADD_1" onclick="add(1)">add one</button>
+    <button data-i18n="BUTTON_ADD_2" onclick="add(2)">add two</button>
   </body>
   <script>
     i18n.load({
       'en': {
         'TITLE': 'Title',
         'BUTTON_TEXT': 'change',
-        'BUTTON_ADD': 'add',
+        'BUTTON_ADD_1': 'add one line',
+        'BUTTON_ADD_2': 'add two line',
         'p': {
           'text': 'This is test text.'
         }
@@ -29,7 +31,8 @@
       'zh': {
         'TITLE': '标题',
         'BUTTON_TEXT': '变',
-        'BUTTON_ADD': '添加',
+        'BUTTON_ADD_1': '添加一行',
+        'BUTTON_ADD_2': '添加两行',
         'p': {
           'text': '这是测试文本。'
         }
@@ -37,7 +40,8 @@
       'jp': {
         'TITLE': 'タイトル',
         'BUTTON_TEXT': '変更',
-        'BUTTON_ADD': '追加する',
+        'BUTTON_ADD_1': '1行を追加する',
+        'BUTTON_ADD_2': '2行を追加する',
         'p': {
           'text': 'これはテストテキストです'
         }
@@ -51,19 +55,25 @@
       i18n.use( value );
     }
     
-    function add () {
-      var p = document.getElementsByTagName( 'p' ),
-        newP = document.createElement( 'div' ),
-        node;
+    function add ( num ) {
+      var p = document.getElementsByTagName( 'p' )
+        , newP = document.createElement( 'div' )
+        , i
+        , node
+        , fragment;
     
+      fragment = document.createDocumentFragment();
       newP.innerHTML = '<p data-i18n="p.text">This is test text.</p>';
-      node = newP.firstChild.cloneNode( true );
+    
+      for ( i = 0; i < num; i++ ) {
+        node = newP.firstChild.cloneNode( true );
+        fragment.appendChild( node );
+      }
+    
+      i18n.cache( fragment ).translate( fragment );
     
       p = p[p.length-1];
-      p.parentNode.insertBefore( node, p.nextSibling );
-    
-      i18n.cache( node );
-      i18n.translate( node );
+      p.parentNode.insertBefore( fragment, p.nextSibling );
     }
     
     i18n.cache();

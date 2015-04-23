@@ -22,6 +22,4 @@ var previousi18n = root.i18n;
 
 // Local references to array methods.
 var array = [],
-    push = array.push,
-    slice = array.slice,
-    splice = array.splice;
+    push = array.push;
