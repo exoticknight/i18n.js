@@ -1,6 +1,6 @@
 /*
  * i18n.js
- * author: exotcknight
+ * author: exoticknight
  * email: draco.knight0@gmail.com
  * license: MIT
  * version: 0.0.1
@@ -131,8 +131,7 @@ _.setText = function ( ele, text ) {
 
 // Walk the DOM, call the visit
 _.walkDOM = function ( dom, visit ) {
-    var node,
-        passed;
+    var node;
 
     if ( dom && ( 1 === dom.nodeType || 11 === dom.nodeType ) ) {
         visit( dom );

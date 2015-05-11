@@ -1,6 +1,6 @@
 /*
  * i18n.js
- * author: exotcknight
+ * author: exoticknight
  * email: draco.knight0@gmail.com
  * license: MIT
  * version: 0.0.1
